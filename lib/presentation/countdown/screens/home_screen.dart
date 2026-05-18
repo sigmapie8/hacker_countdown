@@ -4,13 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../bloc/countdown_bloc.dart';
-import '../../bloc/countdown_event.dart';
-import '../../bloc/countdown_state.dart';
-import '../../core/theme/app_theme.dart';
+import '../../../bloc/countdown/countdown_bloc.dart';
+import '../../../bloc/countdown/countdown_event.dart';
+import '../../../bloc/countdown/countdown_state.dart';
+import '../../../bloc/settings/settings_bloc.dart';
+import '../../../core/theme/app_theme.dart';
 import '../widgets/control_buttons.dart';
 import '../widgets/countdown_display.dart';
-import '../widgets/matrix_rain_background.dart';
+import '../../shared/widgets/matrix_rain_background.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -32,8 +33,6 @@ class _HomeViewState extends State<_HomeView> {
   bool _focusMode = false;
   Timer? _idleTimer;
 
-  void _toggleFocusMode() => setState(() => _focusMode = !_focusMode);
-
   void _enableFocusMode() {
     _idleTimer?.cancel();
     _idleTimer = null;
@@ -43,7 +42,13 @@ class _HomeViewState extends State<_HomeView> {
   void _onMouseMove() {
     if (_focusMode) setState(() => _focusMode = false);
     _idleTimer?.cancel();
-    _idleTimer = Timer(const Duration(seconds: 2), _enableFocusMode);
+    final settings = context.read<SettingsBloc>().state.settings;
+    if (settings.autofocusEnabled) {
+      _idleTimer = Timer(
+        Duration(seconds: settings.autofocusSeconds),
+        _enableFocusMode,
+      );
+    }
   }
 
   @override
@@ -57,7 +62,10 @@ class _HomeViewState extends State<_HomeView> {
     return BlocListener<CountdownBloc, CountdownState>(
       listenWhen: (prev, curr) =>
           prev.status != curr.status && curr.status == TimerStatus.running,
-      listener: (_, _) => _enableFocusMode(),
+      listener: (_, _) {
+        final settings = context.read<SettingsBloc>().state.settings;
+        if (settings.autofocusEnabled) _enableFocusMode();
+      },
       child: MouseRegion(
         onHover: (_) => _onMouseMove(),
         child: Scaffold(
@@ -142,36 +150,18 @@ class _HomeViewState extends State<_HomeView> {
                   duration: const Duration(milliseconds: 300),
                   child: IgnorePointer(
                     ignoring: _focusMode,
-                    child: _FocusToggleButton(onToggle: _toggleFocusMode),
+                    child: IconButton(
+                      icon: const Icon(Icons.settings),
+                      color: AppColors.dimGreen,
+                      iconSize: 20,
+                      tooltip: 'Settings',
+                      onPressed: () => context.push('/settings'),
+                    ),
                   ),
                 ),
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _FocusToggleButton extends StatelessWidget {
-  final VoidCallback onToggle;
-
-  const _FocusToggleButton({required this.onToggle});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onToggle,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColors.dimGreen),
-          color: Colors.transparent,
-        ),
-        child: Text(
-          '[ FOCUS ]',
-          style: AppTextStyles.label.copyWith(fontSize: 11),
         ),
       ),
     );

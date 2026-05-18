@@ -1,7 +1,8 @@
 import 'package:go_router/go_router.dart';
 
-import '../../presentation/screens/home_screen.dart';
-import '../../presentation/screens/set_duration_screen.dart';
+import '../../presentation/countdown/screens/home_screen.dart';
+import '../../presentation/countdown/screens/set_duration_screen.dart';
+import '../../presentation/settings/screens/settings_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
@@ -15,6 +16,11 @@ final GoRouter appRouter = GoRouter(
       path: '/set-duration',
       name: 'set-duration',
       builder: (context, state) => const SetDurationScreen(),
+    ),
+    GoRoute(
+      path: '/settings',
+      name: 'settings',
+      builder: (context, state) => const SettingsScreen(),
     ),
   ],
 );

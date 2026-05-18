@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../bloc/countdown_state.dart';
-import '../../core/theme/app_theme.dart';
+import '../../../bloc/countdown/countdown_state.dart';
+import '../../../core/theme/app_theme.dart';
 
 class ControlButtons extends StatelessWidget {
   final TimerStatus status;

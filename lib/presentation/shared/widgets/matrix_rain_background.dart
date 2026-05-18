@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-import '../../core/theme/app_theme.dart';
+import '../../../core/theme/app_theme.dart';
 
 class _MatrixColumn {
   final double x;
@@ -22,7 +22,6 @@ class _MatrixColumn {
 }
 
 String _randomChar(math.Random rng) {
-  // Mix katakana and ASCII digits for the classic look
   if (rng.nextBool()) {
     return String.fromCharCode(0x30A0 + rng.nextInt(0x60));
   }
@@ -130,12 +129,10 @@ class _MatrixRainBackgroundState extends State<MatrixRainBackground> {
       col.y += col.speed * dt;
       if (col.y > size.height + col.length * 16.0) {
         col.y = -_rng.nextDouble() * size.height * 0.5;
-        // Randomize chars on reset for variety
         for (int i = 0; i < col.chars.length; i++) {
           col.chars[i] = _randomChar(_rng);
         }
       }
-      // Occasionally mutate a random char in the trail
       if (_rng.nextInt(10) == 0) {
         final idx = _rng.nextInt(col.chars.length);
         col.chars[idx] = _randomChar(_rng);
@@ -152,9 +149,7 @@ class _MatrixRainBackgroundState extends State<MatrixRainBackground> {
         final size = Size(constraints.maxWidth, constraints.maxHeight);
         if (!_initialized && size.width > 0 && size.height > 0) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
-              _initColumns(size);
-            }
+            if (mounted) _initColumns(size);
           });
         }
         return CustomPaint(
